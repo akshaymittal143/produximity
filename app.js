@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const inventory = require("./lib/inventory");
 const conversation = new (require("./lib/conversation"))();
 
+const foursquare = require("./lib/foursquare");
+
 const port = process.env.PORT || 3000;
 const host = process.env.HOST || "0.0.0.0";
 
@@ -20,11 +22,33 @@ router.get('/inventory/book/:isbn', function(req, res) {
   });
 });
 
+router.get('/inventory/title/:title', function(req, res) {
+  inventory.requestBookByTitle(req.params.title, function(book){
+    res.json(book);   
+  });
+});
+
+
 router.post('/conversation/message/', function(req, res) {
   conversation.processMessage(req.body.message, req.body.conversationContext).then((response) => {
     res.json(response);
   });
 });
+
+router.get('/foursquare/venues/:lat/:lon', function(req, res) {
+  foursquare.getVenues(req.params.lat, req.params.lon, function(venues){
+    res.json(venues);
+  });
+});
+
+router.get('/foursquare/branch/:branch', function(req, res) {
+  foursquare.getVenuesNearBranch(req.params.branch, function(venues){
+    res.json(venues);
+  });
+});
+
+
+
 
 app.use('/api', router);
 app.listen(port, host, function(){
